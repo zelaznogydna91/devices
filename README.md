@@ -9,7 +9,7 @@ It shows the different ways the following tools and patterns can be used:
 - Isolated state through custom hooks.
 - Local state for the simpler state needs.
 - Optimizations on rendering components for responsiveness. 
-### Redux Toolkit
+### Redux, React-Redux & Redux Toolkit
 - State slice creation pattern to quickly develop complex store logic.
 - Async data fetching through thunks.
 - Continuation patterns for saga-like effects.
