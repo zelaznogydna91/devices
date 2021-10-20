@@ -19,10 +19,20 @@ It shows the different ways the following tools and patterns can be used:
 
 ## How to use
 
-Install it and run:
+Run this little express.js mock [server](https://github.com/NinjaRMM/devicesTask_serverApp) 
 
+*Note: You might have to configure a different ```PORT``` for the server to run along this app on the same computer.*  
+
+### Install the project
 ```sh
-npm install
+npm install  
+```
+or 
+```sh
+npm ci 
+```
+### Run the web app
+```sh
 npm start
 ```
 
