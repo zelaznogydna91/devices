@@ -1,4 +1,7 @@
 # Devices
+
+<img style="float: right;" src="./src/assets/readmeLogo.svg" alt="Readme Logo" height="150" />
+
 This project was kickstarted with the  ***Create React App example with styled-components***, an example folder that can be found within  [material-ui](https://github.com/mui-org/material-ui) repo.  
 <br/>
 ### You can give it a try [**here**](https://github.com/mui-org/material-ui) 
