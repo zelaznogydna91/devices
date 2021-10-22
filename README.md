@@ -4,7 +4,7 @@
 
 This project was kickstarted with the  ***Create React App example with styled-components***, an example folder that can be found within  [material-ui](https://github.com/mui-org/material-ui) repo.  
 <br/>
-### You can give it a try [**here**](https://github.com/mui-org/material-ui) 
+### You can give it a try [**here**](https://devices.vercel.app/) 
 <br/>
 It shows the different ways the following tools and patterns can be used:
 
