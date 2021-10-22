@@ -10,18 +10,13 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import Popover from '@mui/material/Popover'
 
-import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import MenuList from '@mui/material/MenuList'
 import MenuItem from '@mui/material/MenuItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import ContentCut from '@mui/icons-material/ContentCut'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import ContentPaste from '@mui/icons-material/ContentPaste'
-import Cloud from '@mui/icons-material/Cloud'
+import { Icons } from 'common/theme'
 
-import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { ReactComponent as MacSVG } from 'assets/mac.svg'
 import { ReactComponent as WindowsSVG } from 'assets/windows.svg'
 import { ReactComponent as ServerSVG } from 'assets/winserv.svg'
@@ -75,7 +70,7 @@ const Component = (props) => {
         </CardContent>
         <Box>
           <IconButton onClick={onMenuOpen} aria-label="previous">
-            <MoreVertIcon />
+            <Icons.MoreVert />
           </IconButton>
           <Popover
             id={menuAnchorElement ? 'device-card-menu-popover' : undefined}

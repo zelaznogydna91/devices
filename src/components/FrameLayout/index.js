@@ -13,8 +13,7 @@ import Divider from '@mui/material/Divider'
 import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-import AddIcon from '@mui/icons-material/Add'
-import DevicesOtherIcon from '@mui/icons-material/DevicesOther'
+import { ThemeProvider } from '@mui/material/styles'
 
 import Styled from './styled'
 
@@ -25,21 +24,27 @@ const ComponentName = 'FrameLayout'
 
 const Component = (props) => {
   const {
-    children, section, sideOptions, onSectionSelection,
+    children,
+    section, sideOptions, onSectionSelection,
+    theme,
   } = props
+
   return (
     <Styled.Layout>
-      <AppBar
-        position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
-      >
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {section.title}
-          </Typography>
-          {section.controls}
-        </Toolbar>
-      </AppBar>
+      <ThemeProvider theme={theme}>
+        <AppBar
+          position="fixed"
+          sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+        >
+
+          <Toolbar>
+            <Typography color="info" variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              {section.title}
+            </Typography>
+            {section.controls}
+          </Toolbar>
+        </AppBar>
+      </ThemeProvider>
 
       <Drawer
         sx={{
@@ -92,6 +97,7 @@ Component.propTypes = {
   section:            PropTypes.object.isRequired,
   onSectionSelection: PropTypes.func.isRequired,
   sideOptions:        PropTypes.array.isRequired,
+  theme:              PropTypes.any.isRequired,
 }
 Component.displayName = ComponentName
 

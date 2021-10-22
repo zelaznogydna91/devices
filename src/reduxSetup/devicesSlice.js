@@ -1,19 +1,16 @@
 /* eslint-disable no-param-reassign */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import * as ninjaAPI from 'api/ninjaAPI'
-import sortBy from 'lodash/sortBy'
 import isEmpty from 'lodash/isEmpty'
-import difference from 'lodash/difference'
-import { SortByOptions } from 'common/catalogs'
-import { DataSaverOn } from '@mui/icons-material'
-
-const devices = ninjaAPI.listDevices()
+import { DeviceTypes } from 'common/catalogs'
+import { isEqual, orderBy } from 'lodash'
 
 const initialState = {
   fetchedList:  [],
   outputList:   [],
-  filters:      [],
+  filters:      Object.keys(DeviceTypes),
   sortCriteria: [],
+  justAdded:    0,
 }
 const getCuratedList = (list, filters, sortCriteria) => {
   if (isEmpty(filters) && isEmpty(sortCriteria)) {
@@ -22,10 +19,12 @@ const getCuratedList = (list, filters, sortCriteria) => {
   const filtersSet = new Set(filters)
   const filtered = list.filter((device) => filtersSet.has(device.deviceType))
 
-  return sortBy(
+  return orderBy(
     filtered,
     sortCriteria
-      .map((criterion) => (o) => o[SortByOptions[criterion]]),
+      .map((criterion) => (o) => o[criterion.key]),
+    sortCriteria
+      .map((criterion) => (criterion.ascendingOrder ? 'asc' : 'desc')),
   )
 }
 
@@ -45,28 +44,32 @@ export const deleteDevice = createAsyncThunk(
 
 export const updateDevice = createAsyncThunk(
   'devices/updateDevice',
-  async ({ id, data }) => {
-    debugger
-    const r = await ninjaAPI.editDevice(id, data)
-    debugger
-    return r
-  },
+  ({ id, data }) => ninjaAPI.editDevice(id, data),
+
+)
+export const addDevice = createAsyncThunk(
+  'devices/addDevice',
+  async ({ data }) => ninjaAPI.addDevice(data),
 )
 
 const reducers = {
   setFilters: (state, action) => {
-    const sameFilters = isEmpty(difference(state.filters, action.selection))
+    debugger
+    const newSelection = action.payload.selection
+    const sameFilters = isEmpty(newSelection) || isEqual(state.filters, newSelection)
     if (sameFilters) return state
 
-    state.filters = action.selection
+    state.filters = newSelection
     state.outputList = getCuratedList(state.fetchedList, state.filters, state.sortCriteria)
     return state
   },
-  sortBy: (state, action) => {
-    const sameSorting = isEmpty(difference(state.sortCriteria, action.selection))
+  setSortCriteria: (state, action) => {
+    debugger
+    const newCriteria = action.payload.criteria
+    const sameSorting = isEqual(state.sortCriteria, newCriteria)
     if (sameSorting) return state
 
-    state.sortCriteria = action.selection
+    state.sortCriteria = newCriteria
     state.outputList = getCuratedList(state.fetchedList, state.filters, state.sortCriteria)
     return state
   },
@@ -80,9 +83,9 @@ const devicesSlice = createSlice({
       state.fetchedList = action.payload
       state.outputList = getCuratedList(state.fetchedList, state.filters, state.sortCriteria)
     },
-    // [updateDevice.pending]: (state, action) => {
-    //   state.outputList = getCuratedList(state.fetchedList, state.filters, state.sortCriteria)
-    // },
+    [addDevice.fulfilled]: (state) => {
+      state.justAdded += 1
+    },
   },
   initialState,
 })
@@ -90,6 +93,7 @@ const devicesSlice = createSlice({
 export const {
   setActiveSection,
   setFilters,
+  setSortCriteria,
 } = devicesSlice.actions
 
 export default devicesSlice

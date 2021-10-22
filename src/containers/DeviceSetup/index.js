@@ -1,11 +1,6 @@
 import React, { useMemo, useEffect } from 'react'
+import { Icons } from 'common/theme'
 
-import SdStorageIcon from '@mui/icons-material/SdStorage'
-import SpaceBarIcon from '@mui/icons-material/SpaceBar'
-import StorageIcon from '@mui/icons-material/Storage'
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
-import WindowIcon from '@mui/icons-material/Window'
-import AppleIcon from '@mui/icons-material/Apple'
 import {
   InputLabel, MenuItem,
   Select, TextField, Typography,
@@ -22,7 +17,6 @@ import useAppGeneral from 'reduxSetup/generalHook'
 import useAppDevices from 'reduxSetup/devicesHook'
 import DiscardDialog from 'components/DiscardDialog'
 
-import { StaticDatePicker } from '@mui/lab'
 import useDeviceSetup, { SetupFields, CancelOperations } from './hook'
 
 import Styled from './styled'
@@ -34,10 +28,10 @@ const cancelCaptions = {
 
 const deviceTypesToSelect = ['none', ...Object.keys(DeviceTypes)]
 const deviceTypeIcons = {
-  [DeviceTypes.MAC]:                 AppleIcon,
-  [DeviceTypes.WINDOWS_SERVER]:      StorageIcon,
-  [DeviceTypes.WINDOWS_WORKSTATION]: WindowIcon,
-  none:                              SpaceBarIcon,
+  [DeviceTypes.MAC]:                 Icons.DeviceTypeMac,
+  [DeviceTypes.WINDOWS_SERVER]:      Icons.DeviceTypeWindowsServer,
+  [DeviceTypes.WINDOWS_WORKSTATION]: Icons.DeviceTypeWindow,
+  none:                              Icons.NoSelection,
 
 }
 
@@ -51,7 +45,7 @@ const Component = () => {
   } = useAppGeneral()
   const {
     list,
-    actions: { updateDevice },
+    actions: { updateDevice, addDevice },
   } = useAppDevices()
 
   const editingDevice = useMemo(() => {
@@ -59,10 +53,14 @@ const Component = () => {
     return list.find((x) => x.id === sectionParams.editingDeviceId)
   }, [sectionParams, list])
 
+  const handlers = {
+    updateDevice,
+    addDevice,
+    closeDeviceSetup: openDevices,
+  }
   const [state, actions] = useDeviceSetup({
     editingDevice,
-    updateDevice,
-    closeDeviceSetup: openDevices,
+    handlers,
   })
 
   const {
@@ -118,7 +116,7 @@ const Component = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SupervisedUserCircleIcon />
+                  <Icons.SystemName />
                 </InputAdornment>
               ),
             }}
@@ -181,7 +179,7 @@ const Component = () => {
               pattern:        '[0-9]*',
               startAdornment: (
                 <InputAdornment position="start">
-                  <SdStorageIcon />
+                  <Icons.HddCapacity />
                 </InputAdornment>
               ),
               endAdornment: (<InputAdornment position="end">GB</InputAdornment>),

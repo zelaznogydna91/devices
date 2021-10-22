@@ -1,21 +1,20 @@
-import React, { useState } from 'react'
+/* eslint-disable react/jsx-props-no-spreading */
 
+import React, { useState, useRef, useEffect } from 'react'
+import Link from '@mui/material/Link'
+import scrollRefIntoView from '@zelaznogydna/utils/dist/scrollRefIntoView'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import DevicesOtherIcon from '@mui/icons-material/DevicesOther'
-import AddIcon from '@mui/icons-material/Add'
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
-import LogoutIcon from '@mui/icons-material/Logout'
-import Link from '@mui/material/Link'
-
-import useAppGeneral from 'reduxSetup/generalHook'
-import FrameLayout from 'containers/FrameLayout'
+import {
+  Sections, SectionsTitles, SortCriteria, SortFriendlyCriteria,
+} from 'common/catalogs'
+import FrameLayout from 'components/FrameLayout'
 import DeviceSetup from 'containers/DeviceSetup'
 import DevicesPanel from 'containers/DevicesPanel'
-
-import { Sections, SectionsTitles } from 'common/catalogs'
-
+import useAppGeneral from 'reduxSetup/generalHook'
+import { Icons } from 'common/theme'
 import Controls from './components/Controls'
+import useAppDevices from './reduxSetup/devicesHook'
 
 const theme = createTheme({
   palette: {
@@ -32,9 +31,39 @@ const theme = createTheme({
       contrastText: '#F9F9F9',
     },
     background: {
-      paper:   '#fff',
-      default: '#F9F9F9',
+      paper:   '#F9F9F9',
+      default: '#fff',
       dark:    '#2b4259',
+    },
+  },
+})
+
+export const darkTheme = createTheme({
+  ...theme,
+  palette: {
+    mode:    'dark',
+    primary: {
+      light:        '#2b4259',
+      main:         '#576d86',
+      dark:         '#001c30',
+      contrastText: '#00000087',
+    },
+    secondary: {
+      light:        '#96001d',
+      main:         '#ce2043',
+      dark:         '#ff7043',
+      contrastText: '#F9F9F9',
+    },
+    background: {
+      paper:   '#001c30',
+      default: '#000',
+      dark:    '#001c30',
+    },
+    info: {
+      light:        '#fff',
+      main:         '#F9F9F9',
+      dark:         '#576d86',
+      contrastText: '#2b4259',
     },
   },
 })
@@ -44,39 +73,26 @@ const SideMenuOptions = [
     {
       id:            Sections.Devices,
       label:         SectionsTitles.Devices,
-      IconComponent: DevicesOtherIcon,
+      IconComponent: Icons.Devices,
     },
     {
       id:            Sections.DeviceSetup,
       label:         SectionsTitles.DeviceSetup,
-      IconComponent: AddIcon,
+      IconComponent: Icons.AddDevice,
     },
   ], [
     {
       id:            Sections.MyProfile,
       label:         SectionsTitles.MyProfile,
-      IconComponent: PersonOutlineIcon,
+      IconComponent: Icons.Profile,
     },
     {
       id:            Sections.LogOut,
       label:         SectionsTitles.LogOut,
-      IconComponent: LogoutIcon,
+      IconComponent: Icons.Logout,
     },
   ],
 ]
-
-const getActiveSectionHeaderControls = (sectionId) => {
-  switch (sectionId) {
-    case Sections.Devices:
-      return Controls.DevicesSection
-
-    case Sections.DeviceSetup:
-      return Controls.DeviceSetupSection
-
-    default:
-      return null
-  }
-}
 
 const getActiveSectionDetails = (sectionKey) => {
   switch (sectionKey) {
@@ -91,40 +107,92 @@ const getActiveSectionDetails = (sectionKey) => {
   }
 }
 
+const sortCriteriaDescriptors = {
+  [SortCriteria.hddCapacity]: {
+    IconComponent: Icons.HddCapacity,
+    tooltip:       SortFriendlyCriteria[SortCriteria.hddCapacity],
+  },
+  [SortCriteria.systemName]: {
+    IconComponent: Icons.SystemName,
+    tooltip:       SortFriendlyCriteria[SortCriteria.systemName],
+  },
+}
+
 export default function App() {
+  const copyrightRef = useRef()
   const { actions, activeSectionId } = useAppGeneral()
+  const {
+    actions: devicesActions,
+    sortCriteria,
+    filters,
+    list,
+    justAdded,
+  } = useAppDevices()
+
+  useEffect(() => {
+    if (!justAdded) return
+    setTimeout(() => {
+      scrollRefIntoView(copyrightRef)
+    }, 500)
+  }, [justAdded])
 
   const SectionDetails = getActiveSectionDetails(activeSectionId)
+
+  let SectionControls = null
+  switch (activeSectionId) {
+    case Sections.Devices: {
+      SectionControls = (
+        <Controls.DevicesSection
+          activeFilters={filters}
+          activeSortCriteria={sortCriteria}
+          sortCriteriaDescriptors={sortCriteriaDescriptors}
+          onFilter={devicesActions.filter}
+          onSortBy={devicesActions.sortBy}
+        />
+      )
+      break
+    }
+
+    case Sections.DeviceSetup:
+      break
+
+    default:
+      break
+  }
 
   return (
     <ThemeProvider theme={theme}>
       <FrameLayout
+        theme={darkTheme}
         sideOptions={SideMenuOptions}
         section={{
           title:    SectionsTitles[activeSectionId],
-          controls: getActiveSectionHeaderControls(activeSectionId),
+          controls: SectionControls,
+
         }}
         onSectionSelection={actions.goToSection}
       >
         <SectionDetails />
       </FrameLayout>
-      <Copyright />
+      <Copyright ref={copyrightRef} />
     </ThemeProvider>
   )
 }
 
-function Copyright() {
+const Copyright = React.forwardRef((props, ref) => {
   // eslint-disable-next-line no-unused-vars
   const [time, setTime] = useState(new Date().getFullYear())
   return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://www.linkedin.com/in/zelaznogydna/">
-        Andy Gonzalez
-      </Link>
-      {' '}
-      {time}
-      .
-    </Typography>
+    <div ref={ref}>
+      <Typography sx={{ pb: 4 }} variant="body2" color="text.secondary" align="center">
+        {'Copyright © '}
+        <Link color="inherit" href="https://www.linkedin.com/in/zelaznogydna/" target="_blank">
+          Andy Gonzalez
+        </Link>
+        {' '}
+        {time}
+        .
+      </Typography>
+    </div>
   )
-}
+})

@@ -96,7 +96,8 @@ function reducer(state, action) {
   }
 }
 
-const UserActions = (dispatch, stateRef, actionsMemRef, updateDevice, closeDeviceSetup) => ({
+const UserActions = (dispatch, stateRef, actionsMemRef, handlers) => ({
+
   setOperationTitle: (title) => dispatch({ type: ActionTypes.setOperationTitle, title }),
   setInitialFields:  (initial) => dispatch({ type: ActionTypes.setInitialFields, initial }),
   setField:          (fieldName, value) => dispatch({
@@ -105,14 +106,22 @@ const UserActions = (dispatch, stateRef, actionsMemRef, updateDevice, closeDevic
     value,
   }),
   save: () => {
-    debugger
+    const { updateDevice, addDevice, closeDeviceSetup } = handlers
     const { deviceId } = actionsMemRef.current
     const data = { ...stateRef.current.editedFields }
-    debugger
-    updateDevice(deviceId, data)
+    const editingDeviceId = actionsMemRef.current.deviceId
+
+    if (editingDeviceId) updateDevice(deviceId, data)
+    else {
+      addDevice(data)
+      closeDeviceSetup()
+    }
+
     // dispatch({ type: ActionTypes.save })
   },
   cancel: (continuation = null) => {
+    const { closeDeviceSetup } = handlers
+
     if (typeof continuation === 'function') {
       actionsMemRef.current.cancelContinuation = continuation
     }
@@ -137,14 +146,19 @@ const UserActions = (dispatch, stateRef, actionsMemRef, updateDevice, closeDevic
   },
 })
 
-const useDeviceSetup = ({ editingDevice, updateDevice, closeDeviceSetup }) => {
+const useDeviceSetup = ({
+  editingDevice,
+  handlers,
+}) => {
   const stateRef = useRef()
   const [state, dispatch] = useReducer(reducer, initialState)
   stateRef.current = state
 
-  const actionsMemRef = useRef({ deviceId: editingDevice.id })
+  const actionsMemRef = useRef({})
+
+  if (editingDevice) actionsMemRef.current.deviceId = editingDevice.id
   const actions = useMemo(
-    () => UserActions(dispatch, stateRef, actionsMemRef, updateDevice, closeDeviceSetup),
+    () => UserActions(dispatch, stateRef, actionsMemRef, handlers),
     [],
   )
 

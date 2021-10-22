@@ -3,21 +3,22 @@ import useAppGeneral from 'reduxSetup/generalHook'
 import useAppDevices from 'reduxSetup/devicesHook'
 
 import DeviceCard from 'components/DeviceCard'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import { Icons } from 'common/theme'
 
+import { Typography } from '@mui/material'
 import Styled from './styled'
+import { SortFriendlyCriteria } from '../../common/catalogs'
 
 const menuOptions = [
   {
     label:         'Edit Device',
     id:            'edit',
-    IconComponent: EditIcon,
+    IconComponent: Icons.EditDevice,
   },
   {
     label:         'Delete Device',
     id:            'delete',
-    IconComponent: DeleteForeverIcon,
+    IconComponent: Icons.DeleteDevice,
   },
 ]
 
@@ -41,12 +42,15 @@ const Component = () => {
         break
     }
   }
-
+  const orderMessage = devices.sortCriteria
+    .map((criterion) => `${SortFriendlyCriteria[criterion.key]} (${criterion.ascendingOrder ? 'Ascending' : 'Descending'})`)
+    .join(', then ')
   return (
     <Styled.DevicesPanel
       component="main"
-      sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
+      sx={{ flexGrow: 1, bgcolor: 'background.default' }}
     >
+      {!!orderMessage && <Typography sx={{ pb: 1, pl: 1 }} gutterBottom color="primary" variant="body1">{`Listed by ${orderMessage}`}</Typography>}
       {devices.list.map((device) => (
         <DeviceCard
           key={device.id}
