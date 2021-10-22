@@ -22,8 +22,8 @@ export default {
 `,
   IconButton: styled(IconButton)`
     &>svg {
-      width: .75em;  
-      height: .75em;  
+      width: 20px;  
+      height: 20px;  
     }
   `,
   ToggleButton: styled(ToggleButton)`

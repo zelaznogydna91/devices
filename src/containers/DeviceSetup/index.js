@@ -1,5 +1,7 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useRef } from 'react'
 import { Icons } from 'common/theme'
+import FormHelperText from '@mui/material/FormHelperText'
+import FormControl from '@mui/material/FormControl'
 
 import {
   InputLabel, MenuItem,
@@ -12,12 +14,12 @@ import {
   Stack,
 } from '@mui/material'
 
-import { DeviceFriendlyTypes, DeviceTypes } from 'common/catalogs'
+import { DeviceFriendlyTypes, DeviceTypes, DeviceFields } from 'common/catalogs'
 import useAppGeneral from 'reduxSetup/generalHook'
 import useAppDevices from 'reduxSetup/devicesHook'
 import DiscardDialog from 'components/DiscardDialog'
 
-import useDeviceSetup, { SetupFields, CancelOperations } from './hook'
+import useDeviceSetup, { CancelOperations } from './hook'
 
 import Styled from './styled'
 
@@ -32,7 +34,6 @@ const deviceTypeIcons = {
   [DeviceTypes.WINDOWS_SERVER]:      Icons.DeviceTypeWindowsServer,
   [DeviceTypes.WINDOWS_WORKSTATION]: Icons.DeviceTypeWindow,
   none:                              Icons.NoSelection,
-
 }
 
 const ComponentName = 'DeviceSetup'
@@ -40,8 +41,8 @@ const ComponentName = 'DeviceSetup'
 const Component = () => {
   const {
     sectionParams,
-    actions: { openDevices },
     onSectionChange,
+    actions: { openDevices },
   } = useAppGeneral()
   const {
     list,
@@ -58,30 +59,37 @@ const Component = () => {
     addDevice,
     closeDeviceSetup: openDevices,
   }
-  const [state, actions] = useDeviceSetup({
-    editingDevice,
-    handlers,
-  })
+  const [state, actions] = useDeviceSetup({ editingDevice, handlers })
 
   const {
-    operationTitle, editedFields, isDirty, cancelOperation,
+    operationTitle, editedFields,
+    isDirty, cancelOperation,
     discardAlertVisible,
+    validationErrors,
   } = state
+
+  const stateRef = useRef()
+  stateRef.current = state
 
   useEffect(() => {
     const shouldTransition = (toSectionId, continueTransition) => {
-      console.log('%conSectionChange - ', 'color: blue;', toSectionId)
-      if (!isDirty) {
+      // console.log('%conSectionChange - ', 'color: blue;', toSectionId)
+
+      if (!stateRef.current.isDirty || stateRef.current.isSaving) {
         return true // the transition can go on
       }
+
       // check cancel logic !
       actions.cancel(continueTransition)
+
       return false
     }
 
     onSectionChange(shouldTransition)
 
-    return () => onSectionChange(null)
+    return () => {
+      onSectionChange(null)
+    }
   }, [])
 
   const handleFieldChange = (fieldName) => (ev) => {
@@ -106,13 +114,15 @@ const Component = () => {
         >
           <InputLabel sx={{ flexShrink: 0, minWidth: 150, textAlign: 'right' }} id="system-name-input-label">System Name *</InputLabel>
           <TextField
+            error={!!validationErrors[DeviceFields.systemName]}
+            helperText={validationErrors[DeviceFields.systemName]}
             fullWidth
             id="system-name-input"
             labelId="system-name-input-label"
             placeholder="Enter system name"
             variant="outlined"
-            value={editedFields[SetupFields.systemName]}
-            onChange={handleFieldChange(SetupFields.systemName)}
+            value={editedFields[DeviceFields.systemName]}
+            onChange={handleFieldChange(DeviceFields.systemName)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -129,37 +139,46 @@ const Component = () => {
           spacing={2}
         >
           <InputLabel sx={{ flexShrink: 0, minWidth: 150, textAlign: 'right' }} id="device-type-select-label">Type *</InputLabel>
-          <Select
+          <FormControl
             fullWidth
-            id="device-type-select"
-            labelId="device-type-select-label"
-            value={editedFields[SetupFields.deviceType]}
-            onChange={handleFieldChange(SetupFields.deviceType)}
-            renderValue={(selectedType) => {
-              const TypeIcon = deviceTypeIcons[selectedType]
-              return (
-                <Box sx={{ display: 'flex', gap: 1.6 }}>
-                  <TypeIcon fontSize="small" sx={{ color: '#727272' }} />
-                  {DeviceFriendlyTypes[selectedType]}
-                </Box>
-              )
-            }}
+            error={!!validationErrors[DeviceFields.deviceType]}
+            sx={{ m: 1, minWidth: 120 }}
           >
-            {
-              deviceTypesToSelect
-                .map((type) => {
-                  const TypeIcon = deviceTypeIcons[type]
-                  return (
-                    <MenuItem key={type} value={type}>
-                      <ListItemIcon>
-                        <TypeIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>{DeviceFriendlyTypes[type]}</ListItemText>
-                    </MenuItem>
-                  )
-                })
-            }
-          </Select>
+            <Select
+              fullWidth
+              id="device-type-select"
+              labelId="device-type-select-label"
+              value={editedFields[DeviceFields.deviceType]}
+              onChange={handleFieldChange(DeviceFields.deviceType)}
+              renderValue={(selectedType) => {
+                const TypeIcon = deviceTypeIcons[selectedType]
+                return (
+                  <Box sx={{ display: 'flex', gap: 1.6 }}>
+                    <TypeIcon fontSize="small" sx={{ color: '#727272' }} />
+                    {DeviceFriendlyTypes[selectedType]}
+                  </Box>
+                )
+              }}
+            >
+              {
+                deviceTypesToSelect
+                  .map((type) => {
+                    const TypeIcon = deviceTypeIcons[type]
+                    return (
+                      <MenuItem key={type} value={type}>
+                        <ListItemIcon>
+                          <TypeIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>{DeviceFriendlyTypes[type]}</ListItemText>
+                      </MenuItem>
+                    )
+                  })
+              }
+            </Select>
+            {!!validationErrors[DeviceFields.deviceType] && (
+              <FormHelperText>{validationErrors[DeviceFields.deviceType]}</FormHelperText>
+            )}
+          </FormControl>
         </Stack>
         <Stack
           sx={{ mt: 3 }}
@@ -170,6 +189,8 @@ const Component = () => {
         >
           <InputLabel sx={{ flexShrink: 0, minWidth: 150, textAlign: 'right' }} id="hdd-capacity-input-label">HDD Capacity (GB) *</InputLabel>
           <TextField
+            error={!!validationErrors[DeviceFields.hddCapacity]}
+            helperText={validationErrors[DeviceFields.hddCapacity]}
             fullWidth
             id="hdd-capacity-input"
             labelId="hdd-capacity-input-label"
@@ -185,8 +206,8 @@ const Component = () => {
               endAdornment: (<InputAdornment position="end">GB</InputAdornment>),
             }}
             variant="outlined"
-            value={editedFields[SetupFields.hddCapacity]}
-            onChange={handleFieldChange(SetupFields.hddCapacity)}
+            value={editedFields[DeviceFields.hddCapacity]}
+            onChange={handleFieldChange(DeviceFields.hddCapacity)}
           />
         </Stack>
       </Stack>

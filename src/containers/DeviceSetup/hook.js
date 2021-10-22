@@ -1,13 +1,9 @@
 /* eslint-disable no-param-reassign */
-import React, {
+import {
   useReducer, useMemo, useEffect, useRef,
 } from 'react'
-
-export const SetupFields = {
-  systemName:  'systemName',
-  deviceType:  'deviceType',
-  hddCapacity: 'hddCapacity',
-}
+import { DeviceTypes, DeviceFields, DeviceFriendlyFields } from 'common/catalogs'
+import * as yup from 'yup'
 
 export const CancelOperations = {
   cancel:  'cancel',
@@ -16,17 +12,19 @@ export const CancelOperations = {
 
 const initialState = {
   operationTitle: 'Device Edition',
-  editedFields:   {
-    [SetupFields.systemName]:  '',
-    [SetupFields.deviceType]:  '',
-    [SetupFields.hddCapacity]: '',
+  initialFields:  {
+    [DeviceFields.systemName]:  '',
+    [DeviceFields.deviceType]:  '',
+    [DeviceFields.hddCapacity]: '',
   },
-  initialFields: {
-    [SetupFields.systemName]:  '',
-    [SetupFields.deviceType]:  '',
-    [SetupFields.hddCapacity]: '',
+  editedFields: {
+    [DeviceFields.systemName]:  '',
+    [DeviceFields.deviceType]:  '',
+    [DeviceFields.hddCapacity]: '',
   },
+  validationErrors:    false,
   isDirty:             false,
+  isSaving:            false,
   cancelOperation:     CancelOperations.cancel,
   discardAlertVisible: false,
 }
@@ -35,7 +33,8 @@ const ActionTypes = {
   setOperationTitle: 'setOperationTitle',
   setInitialFields:  'setInitialFields',
   setField:          'setField',
-  save:              'save',
+  invalidData:       'invalidData',
+  setSaving:         'setSaving',
   showDiscardAlert:  'showDiscardAlert',
   confirmDiscard:    'confirmDiscard',
 }
@@ -46,6 +45,47 @@ function reducer(state, action) {
       return {
         ...state,
         operationTitle: action.title,
+      }
+
+    case ActionTypes.setInitialFields:
+      return {
+        ...state,
+        initialFields:   action.initial,
+        isDirty:         false,
+        editedFields:    { ...action.initial },
+        cancelOperation: CancelOperations.cancel,
+      }
+
+    case ActionTypes.setField: {
+      const isDirty = action.value !== state.initialFields[action.fieldName]
+      const cancelOperation = isDirty ? CancelOperations.discard : CancelOperations.cancel
+
+      const nextValidationErrors = state.validationErrors && { ...state.validationErrors }
+      if (nextValidationErrors && nextValidationErrors[action.fieldName]) {
+        delete nextValidationErrors[action.fieldName] // cleared by edition
+      }
+      return {
+        ...state,
+        editedFields: {
+          ...state.editedFields,
+          [action.fieldName]: action.value,
+        },
+        isDirty,
+        cancelOperation,
+        validationErrors: nextValidationErrors,
+      }
+    }
+
+    case ActionTypes.invalidData:
+      return {
+        ...state,
+        validationErrors: action.validationErrors,
+      }
+
+    case ActionTypes.setSaving:
+      return {
+        ...state,
+        isSaving: true,
       }
 
     case ActionTypes.showDiscardAlert:
@@ -68,36 +108,46 @@ function reducer(state, action) {
           discardAlertVisible: false,
         }
 
-    case ActionTypes.setInitialFields:
-      return {
-        ...state,
-        initialFields:   action.initial,
-        isDirty:         false,
-        editedFields:    { ...action.initial },
-        cancelOperation: CancelOperations.cancel,
-      }
-
-    case ActionTypes.setField: {
-      const isDirty = action.value !== state.initialFields[action.fieldName]
-      const cancelOperation = isDirty ? CancelOperations.discard : CancelOperations.cancel
-      return {
-        ...state,
-        editedFields: {
-          ...state.editedFields,
-          [action.fieldName]: action.value,
-        },
-        isDirty,
-        cancelOperation,
-      }
-    }
-
     default:
-      throw new Error()
+      throw new Error(`Undefined reaction type: [${action.type}]`)
   }
 }
 
-const UserActions = (dispatch, stateRef, actionsMemRef, handlers) => ({
+const fieldRequiredMsg = (fieldName) => `${DeviceFriendlyFields[fieldName]} is required.`
+const fieldMinMsg = (fieldName, minMsg) => `${DeviceFriendlyFields[fieldName]} ${minMsg}.`
 
+const dataSchema = yup.object().shape({
+  [DeviceFields.systemName]: yup.string()
+    .required(fieldRequiredMsg(DeviceFields.systemName)),
+
+  [DeviceFields.deviceType]: yup.string()
+    // .required(fieldRequiredMsg(DeviceFields.deviceType))
+    .matches(/^(?!.*none).*/, {
+      message:            fieldRequiredMsg(DeviceFields.deviceType),
+      excludeEmptyString: true,
+    }),
+
+  [DeviceFields.hddCapacity]: yup.string()
+    .required(fieldRequiredMsg(DeviceFields.hddCapacity))
+    .matches(/^\d+$/, {
+      message:            fieldMinMsg(DeviceFields.hddCapacity, 'minimum valid is 1 GB'),
+      excludeEmptyString: true,
+    }),
+  // .integer(fieldMinMsg(DeviceFields.hddCapacity, 'minimun valid is 1 GB.')).min(1),
+})
+
+const dataValidation = (data) => dataSchema
+  .validate(data, { abortEarly: false })
+  .then(() => ({ ok: true }))
+  .catch((error) => {
+    const errorsMap = {}
+    error.inner.forEach((e, i) => {
+      errorsMap[e.path] = error.errors[i]
+    })
+    return { ok: false, errors: errorsMap }
+  })
+
+const UserActions = (dispatch, stateRef, actionsMemRef, handlers) => ({
   setOperationTitle: (title) => dispatch({ type: ActionTypes.setOperationTitle, title }),
   setInitialFields:  (initial) => dispatch({ type: ActionTypes.setInitialFields, initial }),
   setField:          (fieldName, value) => dispatch({
@@ -105,19 +155,25 @@ const UserActions = (dispatch, stateRef, actionsMemRef, handlers) => ({
     fieldName,
     value,
   }),
-  save: () => {
+  save: async () => {
     const { updateDevice, addDevice, closeDeviceSetup } = handlers
     const { deviceId } = actionsMemRef.current
     const data = { ...stateRef.current.editedFields }
     const editingDeviceId = actionsMemRef.current.deviceId
 
-    if (editingDeviceId) updateDevice(deviceId, data)
-    else {
-      addDevice(data)
-      closeDeviceSetup()
+    const result = await dataValidation(data)
+
+    if (result.ok === false) {
+      dispatch({ type: ActionTypes.invalidData, validationErrors: result.errors })
+      return
     }
 
-    // dispatch({ type: ActionTypes.save })
+    if (editingDeviceId) updateDevice(deviceId, data)
+    else {
+      dispatch({ type: ActionTypes.setSaving })
+      addDevice(data)
+      setTimeout(closeDeviceSetup, 10)
+    }
   },
   cancel: (continuation = null) => {
     const { closeDeviceSetup } = handlers
@@ -138,6 +194,7 @@ const UserActions = (dispatch, stateRef, actionsMemRef, handlers) => ({
     if (confirmed) {
       // follow any pending cancel continuation
       const { cancelContinuation } = actionsMemRef.current
+
       if (cancelContinuation) {
         cancelContinuation()
         actionsMemRef.current.cancelContinuation = null
@@ -155,8 +212,8 @@ const useDeviceSetup = ({
   stateRef.current = state
 
   const actionsMemRef = useRef({})
-
   if (editingDevice) actionsMemRef.current.deviceId = editingDevice.id
+
   const actions = useMemo(
     () => UserActions(dispatch, stateRef, actionsMemRef, handlers),
     [],
@@ -166,7 +223,7 @@ const useDeviceSetup = ({
     if (editingDevice) {
       actions.setOperationTitle('Edit device')
 
-      const initial = Object.keys(SetupFields)
+      const initial = Object.keys(DeviceFields)
         .reduce(
           (o, fieldName) => Object.assign(o, { [fieldName]: editingDevice[fieldName] }),
           {},

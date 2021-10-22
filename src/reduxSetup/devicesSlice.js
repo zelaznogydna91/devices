@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import * as ninjaAPI from 'api/ninjaAPI'
+// import {listDevices, deletDevice,editDevice,addDevice} from 'api/ninjaAPI'
 import isEmpty from 'lodash/isEmpty'
 import { DeviceTypes } from 'common/catalogs'
 import { isEqual, orderBy } from 'lodash'
@@ -32,14 +33,13 @@ export const listDevices = createAsyncThunk(
   'devices/listDevices',
   async () => {
     const result = await ninjaAPI.listDevices()
-
     return result.list
   },
 )
 
 export const deleteDevice = createAsyncThunk(
   'devices/deleteDevice',
-  (id) => ninjaAPI.deleteDevice(id),
+  async ({ id }) => ninjaAPI.deleteDevice(id),
 )
 
 export const updateDevice = createAsyncThunk(
@@ -54,7 +54,6 @@ export const addDevice = createAsyncThunk(
 
 const reducers = {
   setFilters: (state, action) => {
-    debugger
     const newSelection = action.payload.selection
     const sameFilters = isEmpty(newSelection) || isEqual(state.filters, newSelection)
     if (sameFilters) return state
@@ -64,7 +63,6 @@ const reducers = {
     return state
   },
   setSortCriteria: (state, action) => {
-    debugger
     const newCriteria = action.payload.criteria
     const sameSorting = isEqual(state.sortCriteria, newCriteria)
     if (sameSorting) return state

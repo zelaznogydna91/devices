@@ -2,9 +2,9 @@
 import { useDispatch, useSelector } from 'react-redux'
 import {
   listDevices,
-  deleteDevice,
   updateDevice,
   addDevice,
+  deleteDevice,
   setFilters,
   setSortCriteria,
 } from 'reduxSetup/devicesSlice'
@@ -28,16 +28,14 @@ const useAppDevices = () => {
           dispatch(listDevices())
         })
     }
+
     return {
       getList:      () => { dispatch(listDevices()) },
       updateDevice: changeAndRelistDevices(updateDevice, ['id', 'data']),
       addDevice:    changeAndRelistDevices(addDevice, ['data']),
       deleteDevice: changeAndRelistDevices(deleteDevice, ['id']),
       filter:       (selection) => { dispatch(setFilters({ selection })) },
-      sortBy:       (criteria) => {
-        debugger
-        dispatch(setSortCriteria({ criteria }))
-      },
+      sortBy:       (criteria) => { dispatch(setSortCriteria({ criteria })) },
     }
   }, [])
 

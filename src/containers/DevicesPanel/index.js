@@ -6,8 +6,9 @@ import DeviceCard from 'components/DeviceCard'
 import { Icons } from 'common/theme'
 
 import { Typography } from '@mui/material'
+import { ReactComponent as EmptySVG } from 'assets/empty.svg'
 import Styled from './styled'
-import { SortFriendlyCriteria } from '../../common/catalogs'
+import { DeviceFriendlyFields } from '../../common/catalogs'
 
 const menuOptions = [
   {
@@ -35,6 +36,7 @@ const Component = () => {
         break
 
       case 'delete':
+
         devices.actions.deleteDevice(deviceId)
         break
 
@@ -43,22 +45,30 @@ const Component = () => {
     }
   }
   const orderMessage = devices.sortCriteria
-    .map((criterion) => `${SortFriendlyCriteria[criterion.key]} (${criterion.ascendingOrder ? 'Ascending' : 'Descending'})`)
+    .map((criterion) => `${DeviceFriendlyFields[criterion.key]} (${criterion.ascendingOrder ? 'Ascending' : 'Descending'})`)
     .join(', then ')
+  const emptyList = devices.list.length === 0
+  const deviceList = devices.list
+    .map((device) => (
+      <DeviceCard
+        key={device.id}
+        device={device}
+        menuOptions={menuOptions}
+        onOptionSelection={handleOptionSelection}
+      />
+    ))
   return (
     <Styled.DevicesPanel
       component="main"
       sx={{ flexGrow: 1, bgcolor: 'background.default' }}
     >
       {!!orderMessage && <Typography sx={{ pb: 1, pl: 1 }} gutterBottom color="primary" variant="body1">{`Listed by ${orderMessage}`}</Typography>}
-      {devices.list.map((device) => (
-        <DeviceCard
-          key={device.id}
-          device={device}
-          menuOptions={menuOptions}
-          onOptionSelection={handleOptionSelection}
-        />
-      ))}
+      {emptyList ? (
+        <Styled.EmptyWrapper>
+          <div><EmptySVG width={350} height={158} /></div>
+          <Typography variant="h5">It&apos;s looking a little empty here. You should add a new device 🥷🏻</Typography>
+        </Styled.EmptyWrapper>
+      ) : deviceList}
     </Styled.DevicesPanel>
   )
 }

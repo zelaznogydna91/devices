@@ -5,8 +5,9 @@ import Link from '@mui/material/Link'
 import scrollRefIntoView from '@zelaznogydna/utils/dist/scrollRefIntoView'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 import {
-  Sections, SectionsTitles, SortCriteria, SortFriendlyCriteria,
+  Sections, SectionsTitles, DeviceFields, DeviceFriendlyFields,
 } from 'common/catalogs'
 import FrameLayout from 'components/FrameLayout'
 import DeviceSetup from 'containers/DeviceSetup'
@@ -77,7 +78,7 @@ const SideMenuOptions = [
     },
     {
       id:            Sections.DeviceSetup,
-      label:         SectionsTitles.DeviceSetup,
+      label:         SectionsTitles.NewDevice,
       IconComponent: Icons.AddDevice,
     },
   ], [
@@ -108,13 +109,13 @@ const getActiveSectionDetails = (sectionKey) => {
 }
 
 const sortCriteriaDescriptors = {
-  [SortCriteria.hddCapacity]: {
-    IconComponent: Icons.HddCapacity,
-    tooltip:       SortFriendlyCriteria[SortCriteria.hddCapacity],
-  },
-  [SortCriteria.systemName]: {
+  [DeviceFields.systemName]: {
     IconComponent: Icons.SystemName,
-    tooltip:       SortFriendlyCriteria[SortCriteria.systemName],
+    tooltip:       DeviceFriendlyFields[DeviceFields.systemName],
+  },
+  [DeviceFields.hddCapacity]: {
+    IconComponent: Icons.HddCapacity,
+    tooltip:       DeviceFriendlyFields[DeviceFields.hddCapacity],
   },
 }
 
@@ -122,11 +123,10 @@ export default function App() {
   const copyrightRef = useRef()
   const { actions, activeSectionId } = useAppGeneral()
   const {
-    actions: devicesActions,
-    sortCriteria,
     filters,
-    list,
+    sortCriteria,
     justAdded,
+    actions: devicesActions,
   } = useAppDevices()
 
   useEffect(() => {
@@ -166,6 +166,7 @@ export default function App() {
         theme={darkTheme}
         sideOptions={SideMenuOptions}
         section={{
+          id:       activeSectionId,
           title:    SectionsTitles[activeSectionId],
           controls: SectionControls,
 
@@ -182,8 +183,9 @@ export default function App() {
 const Copyright = React.forwardRef((props, ref) => {
   // eslint-disable-next-line no-unused-vars
   const [time, setTime] = useState(new Date().getFullYear())
+  const drawerWidth = 240
   return (
-    <div ref={ref}>
+    <Box sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }} ref={ref}>
       <Typography sx={{ pb: 4 }} variant="body2" color="text.secondary" align="center">
         {'Copyright © '}
         <Link color="inherit" href="https://www.linkedin.com/in/zelaznogydna/" target="_blank">
@@ -193,6 +195,6 @@ const Copyright = React.forwardRef((props, ref) => {
         {time}
         .
       </Typography>
-    </div>
+    </Box>
   )
 })

@@ -25,7 +25,9 @@ const ComponentName = 'FrameLayout'
 const Component = (props) => {
   const {
     children,
-    section, sideOptions, onSectionSelection,
+    section,
+    sideOptions,
+    onSectionSelection,
     theme,
   } = props
 
@@ -67,7 +69,13 @@ const Component = (props) => {
             <Fragment key={index}>
               <List>
                 {group.map((option) => (
-                  <ListItem key={option.id} button onClick={() => onSectionSelection(option.id)}>
+                  <ListItem
+                    key={option.id}
+                    button
+                    onClick={section.id === option.id
+                      ? undefined
+                      : () => onSectionSelection(option.id)}
+                  >
                     <ListItemIcon>
                       <option.IconComponent />
                     </ListItemIcon>

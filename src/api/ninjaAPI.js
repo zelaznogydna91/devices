@@ -32,7 +32,6 @@ const getDevicesMeta = (devices) => ({
 export const listDevices = async () => {
   try {
     const response = await axios.get(`${baseURL}/devices`)
-
     const list = response.data.map(clientify)
     // const meta = getDevicesMeta(list)
 
@@ -78,4 +77,6 @@ export const editDevice = (deviceId, data) => {
   })
 }
 
-export const deleteDevice = (deviceId) => axios.delete(`${baseURL}/devices/${deviceId}`)
+export const deleteDevice = async (deviceId) => {
+  await axios.delete(`${baseURL}/devices/${deviceId}`)
+}

@@ -89,7 +89,10 @@ const Component = (props) => {
             <Paper sx={{ width: 200, maxWidth: '100%' }}>
               <MenuList>
                 {menuOptions.map((option) => (
-                  <MenuItem key={option.id} onClick={() => onOptionSelection(option.id, deviceId)}>
+                  <MenuItem
+                    key={option.id}
+                    onClick={() => onOptionSelection(option.id, deviceId)}
+                  >
                     <ListItemIcon>
                       <option.IconComponent fontSize="small" />
                     </ListItemIcon>

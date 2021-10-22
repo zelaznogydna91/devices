@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types' // ES6
-import { SortCriteria } from 'common/catalogs'
+import { DeviceFields } from 'common/catalogs'
 
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { Colors, Icons } from 'common/theme'
@@ -74,12 +74,12 @@ const Component = (props) => {
             )
           })}
         </ToggleButtonGroup>
-        <Styled.IconButton color="success" size="small" disabled={!isDirty} onClick={actions.applyNewCriteriaOptions}>
-          <Icons.Done />
-        </Styled.IconButton>
-        <Styled.IconButton color="secondary" size="small" disabled={!clearable} onClick={actions.clear}>
-          <Icons.ClearSort />
-        </Styled.IconButton>
+        <IconButton color="success" size="small" disabled={!isDirty} onClick={actions.applyNewCriteriaOptions}>
+          <Icons.Done fontSize="small" />
+        </IconButton>
+        <IconButton color="secondary" size="small" disabled={!clearable} onClick={actions.clear}>
+          <Icons.ClearSort fontSize="small" />
+        </IconButton>
       </Stack>
     </Styled.SortBySelect>
   )
@@ -91,10 +91,10 @@ const descriptorPropTypes = PropTypes.shape({
 })
 
 Component.propTypes = {
-  withLabel:           PropTypes.string.isRequired,
+  withLabel:           PropTypes.bool.isRequired,
   criteriaDescriptors: PropTypes.shape({
-    [SortCriteria.hddCapacity]: descriptorPropTypes.isRequired,
-    [SortCriteria.systemName]:  descriptorPropTypes.isRequired,
+    [DeviceFields.hddCapacity]: descriptorPropTypes.isRequired,
+    [DeviceFields.systemName]:  descriptorPropTypes.isRequired,
   }).isRequired,
   criteriaData: PropTypes.arrayOf(PropTypes.shape({
     icon:           PropTypes.node.isRequired,

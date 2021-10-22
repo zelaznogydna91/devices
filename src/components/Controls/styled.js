@@ -5,6 +5,4 @@ export default {
 `,
   DevicesSectionControls: styled.div`
 `,
-  DeviceSetupSectionControls: styled.div`
-`,
 }

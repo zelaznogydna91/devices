@@ -1,13 +1,17 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit'
-import { Sections } from '../common/catalogs'
+import { Sections } from 'common/catalogs'
 
 const initialState = {
-  activeSectionId: Sections.Devices,
-  sectionParams:   {},
+  sectionChangeListener: null,
+  activeSectionId:       Sections.Devices,
+  sectionParams:         {},
 }
 
 const reducers = {
+  setSectionChangeListener: (state, action) => {
+    state.sectionChangeListener = action.payload.listener
+  },
   openDevices: (state) => {
     state.activeSectionId = Sections.Devices
   },
@@ -24,6 +28,7 @@ const generalSlice = createSlice({
 })
 
 export const {
+  setSectionChangeListener,
   openDeviceSetup,
   openDevices,
 } = generalSlice.actions

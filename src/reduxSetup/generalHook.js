@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { Sections } from 'common/catalogs'
 import {
+  setSectionChangeListener,
   openDevices,
   openDeviceSetup,
 } from './generalSlice'
@@ -14,13 +15,16 @@ import {
 const useAppGeneral = () => {
   const dispatch = useDispatch()
 
+  const sectionChangeListener = useSelector((s) => s.general.sectionChangeListener)
   const activeSectionId = useSelector((s) => s.general.activeSectionId)
   const sectionParams = useSelector((s) => s.general.sectionParams)
 
-  const sectionChangeCbRef = useRef(null)
-  const onSectionChange = useCallback((cb) => {
-    sectionChangeCbRef.current = cb
+  const onSectionChange = useCallback((listener) => {
+    dispatch(setSectionChangeListener({ listener }))
   }, [])
+
+  const sectionChangeCbRef = useRef(null)
+  sectionChangeCbRef.current = sectionChangeListener
 
   const actions = useMemo(() => {
     const confirmTransition = (toSectionId, doTransition) => {
@@ -37,13 +41,31 @@ const useAppGeneral = () => {
     const openDevicesAction = () => {
       confirmTransition(
         Sections.Devices,
-        () => dispatch(openDevices()),
+        () => {
+          dispatch(openDevices())
+        },
       )
     }
     const openDeviceSetupAction = (deviceId = false) => {
       confirmTransition(
         Sections.DeviceSetup,
         () => dispatch(openDeviceSetup({ deviceId })),
+      )
+    }
+    const openMyProfileAction = () => {
+      confirmTransition(
+        Sections.LogOut,
+        () => {
+          window.location.href = 'https://www.linkedin.com/in/zelaznogydna/'
+        },
+      )
+    }
+    const logOutAction = () => {
+      confirmTransition(
+        Sections.LogOut,
+        () => {
+          window.location.href = 'https://www.ninjarmm.com/'
+        },
       )
     }
 
@@ -58,6 +80,12 @@ const useAppGeneral = () => {
             break
           case Sections.DeviceSetup:
             openDeviceSetupAction(params.deviceId)
+            break
+          case Sections.MyProfile:
+            openMyProfileAction()
+            break
+          case Sections.LogOut:
+            logOutAction()
             break
           default:
             break

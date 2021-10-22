@@ -4,7 +4,6 @@ import AppleIcon from '@mui/icons-material/Apple'
 import CleaningServicesOutlinedIcon from '@mui/icons-material/CleaningServicesOutlined'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import DevicesOtherIcon from '@mui/icons-material/DevicesOther'
-import DoneIcon from '@mui/icons-material/Done'
 import EditIcon from '@mui/icons-material/Edit'
 import LogoutIcon from '@mui/icons-material/Logout'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -14,6 +13,8 @@ import SpaceBarIcon from '@mui/icons-material/SpaceBar'
 import StorageIcon from '@mui/icons-material/Storage'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import WindowIcon from '@mui/icons-material/Window'
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 export const Icons = {
   AddDevice:               AddIcon,
@@ -22,7 +23,7 @@ export const Icons = {
   DeviceTypeMac:           AppleIcon,
   DeviceTypeWindow:        WindowIcon,
   DeviceTypeWindowsServer: StorageIcon,
-  Done:                    DoneIcon,
+  Done:                    CheckCircleIcon,
   HddCapacity:             SdStorageIcon,
   Logout:                  LogoutIcon,
   MoreVert:                MoreVertIcon,
@@ -31,6 +32,7 @@ export const Icons = {
   SystemName:              SupervisedUserCircleIcon,
   EditDevice:              EditIcon,
   DeleteDevice:            DeleteForeverIcon,
+
 }
 
 export const Colors = {

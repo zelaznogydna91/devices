@@ -191,13 +191,11 @@ const userActions = (dispatch, handlers, stateRef) => {
       dispatch({ type: ReactionTypes.setNextCriterionStep, criterionKey })
     },
     applyNewCriteriaOptions: () => {
-      debugger
       const criteriaToApply = Object
         .entries(stateRef.current.newCriteriaOptions)
         .map(([key, state]) => ({ key, ...state }))
         .filter((c) => c.active)
         .sort((x, y) => x.order - y.order)
-      debugger
       handlers.onApply(criteriaToApply)
     },
     clear: () => {
