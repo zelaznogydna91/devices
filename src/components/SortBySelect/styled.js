@@ -19,10 +19,6 @@ export default {
   SortBySelect: styled.div`
 `,
   IconButton: styled(IconButton)`
-    &>svg {
-      /* width: 20px;  
-      height: 20px;   */
-    }
   `,
   ToggleButton: styled(ToggleButton)`
     &>#sort-direction {
