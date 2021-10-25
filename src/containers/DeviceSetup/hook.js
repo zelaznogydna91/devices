@@ -4,6 +4,7 @@ import {
 } from 'react'
 import { DeviceTypes, DeviceFields, DeviceFriendlyFields } from 'common/catalogs'
 import * as yup from 'yup'
+import { setupPageBlock } from '@zelaznogydna/utils'
 
 export const CancelOperations = {
   cancel:  'cancel',
@@ -233,6 +234,19 @@ const useDeviceSetup = ({
     } else actions.setOperationTitle('New device')
   }, [editingDevice])
 
+  useEffect(() => {
+    setupPageBlock(state.isDirty)
+  }, [state.isDirty])
+
+  useEffect(() => {
+    const handleDirtyNavigation = () => {
+      actions.cancel()
+    }
+    window.addEventListener('popstate', handleDirtyNavigation)
+    return () => {
+      window.removeEventListener('popstate', handleDirtyNavigation)
+    }
+  }, [])
   return [state, actions]
 }
 

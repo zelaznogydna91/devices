@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import Link from '@mui/material/Link'
-import scrollRefIntoView from '@zelaznogydna/utils/dist/scrollRefIntoView'
+import { scrollRefIntoView } from '@zelaznogydna/utils'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
