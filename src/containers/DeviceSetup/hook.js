@@ -235,18 +235,9 @@ const useDeviceSetup = ({
   }, [editingDevice])
 
   useEffect(() => {
-    setupPageBlock(state.isDirty)
+    setupPageBlock(state.isDirty, { onBack: actions.cancel })
   }, [state.isDirty])
 
-  useEffect(() => {
-    const handleDirtyNavigation = () => {
-      actions.cancel()
-    }
-    window.addEventListener('popstate', handleDirtyNavigation)
-    return () => {
-      window.removeEventListener('popstate', handleDirtyNavigation)
-    }
-  }, [])
   return [state, actions]
 }
 
