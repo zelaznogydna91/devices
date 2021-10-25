@@ -14,6 +14,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import { ThemeProvider } from '@mui/material/styles'
+import { ReactComponent as NinjaLogo } from 'assets/ninjaLogo.svg'
 
 import Styled from './styled'
 
@@ -62,7 +63,7 @@ const Component = (props) => {
       >
         <Toolbar>
           {/* <img style={{ maxHeight: 54 }} src="https://www.ninjarmm.com/wp-content/uploads/2018/09/Logo_header.svg" height="100" width="300" alt="NinjaRMM" title="Logo_header" /> */}
-          <img style={{ maxHeight: 54 }} src="https://i.imgur.com/3ngjTsm.jpeg" height="100" width="300" alt="NinjaRMM" title="Logo_header" />
+          <NinjaLogo style={{ maxHeight: 54 }} src="https://i.imgur.com/3ngjTsm.jpeg" height="100" width="300" alt="NinjaRMM" title="Logo_header" />
         </Toolbar>
         <Divider />
         <Box sx={{ overflow: 'scroll' }}>
