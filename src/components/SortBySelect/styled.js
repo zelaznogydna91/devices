@@ -6,8 +6,6 @@ import {
 import { Colors } from 'common/theme'
 
 const sortAttribute = css`
-  width: 16px;
-  height: 16px;
   position: absolute;
   border-radius: 10px;
   background: ${Colors.primary};
@@ -22,21 +20,21 @@ export default {
 `,
   IconButton: styled(IconButton)`
     &>svg {
-      width: 20px;  
-      height: 20px;  
+      /* width: 20px;  
+      height: 20px;   */
     }
   `,
   ToggleButton: styled(ToggleButton)`
     &>#sort-direction {
       ${sortAttribute}
-      padding-top: 10px;
-      padding-left: 1px;
-      bottom: 4px;
-      right: 4px;
-      font-size: 24px;
+      bottom: 0px;
+      right: 0px;
+
     }
     &>#sort-order {
       ${sortAttribute}
+      width: 16px;
+  height: 16px;
       top: 1px;
       left:1px;
       justify-content: center;

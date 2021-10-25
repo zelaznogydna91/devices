@@ -4,6 +4,8 @@ import { DeviceFields } from 'common/catalogs'
 
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { Colors, Icons } from 'common/theme'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
 import {
   Typography,
@@ -68,7 +70,13 @@ const Component = (props) => {
                 <Tooltip title={tooltip} placement="bottom">
                   <IconComponent /* sx={{ color: Colors.lightText }} */ />
                 </Tooltip>
-                {active && <div id="sort-direction">{ascendingOrder ? 'ꜛ' : 'ꜜ'}</div>}
+                {active && (
+                  <div id="sort-direction">
+                    {ascendingOrder
+                      ? <ArrowUpwardIcon fontSize="small" />
+                      : <ArrowDownwardIcon fontSize="small" />}
+                  </div>
+                )}
                 {active && <div id="sort-order">{order}</div>}
               </Styled.ToggleButton>
             )
